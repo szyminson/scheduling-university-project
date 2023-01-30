@@ -1,13 +1,19 @@
+"""Common utilities and problem definition"""
 normal_day_cost = 150
 unusual_day_costs = {
     5: 250,
     6: 270
 }
-employees_needed = [3, 3, 3, 3, 3, 2, 2]
-max_employees = max(employees_needed)
+employees_per_route = [3, 3, 3, 3, 3, 2, 2]
 
+
+def get_employee_constraints(route_number: int)-> tuple:
+    """Get tuple with constraint partials"""
+    employees_needed = [number * route_number for number in employees_per_route]
+    return max(employees_needed), employees_needed
 
 def create_shifts() -> list:
+    """Create available shifts list"""
     shifts = []
     first_day_off, second_day_off = (5, 6)
     for _ in range(7):
@@ -26,6 +32,7 @@ def create_shifts() -> list:
 
 
 def calc_shifts_cost(shifts: list) -> list:
+    """Calculate cost of each shift"""
     shifts_cost = []
     for shift in shifts:
         days_count = len(shift)
@@ -40,11 +47,13 @@ def calc_shifts_cost(shifts: list) -> list:
 
 
 def get_shifts_with_cost() -> tuple:
+    """Get shifts with their costs as a tuple"""
     shifts = create_shifts()
     return shifts, calc_shifts_cost(shifts)
 
 
 def calc_cost(solution: list, shifts_cost: list) -> int:
+    """Calculate cost of given solution"""
     cost = 0
     for index, x in enumerate(solution):
         cost += x * shifts_cost[index]
@@ -52,6 +61,7 @@ def calc_cost(solution: list, shifts_cost: list) -> int:
 
 
 def check_constraints(solution: list, shifts: list, employees_needed: list) -> bool:
+    """Check if given solution fits problem constraints"""
     employees_per_day = [0] * len(employees_needed)
     for index, x in enumerate(solution):
         for day in shifts[index]:

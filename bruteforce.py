@@ -1,7 +1,10 @@
-from common import calc_cost, check_constraints, get_shifts_with_cost, max_employees, employees_needed
+"""Brute force algorithm implementation for employee shifts scheduling"""
+from common import calc_cost, check_constraints, get_shifts_with_cost, get_employee_constraints
 
 
-def run(shifts: list, shifts_cost: list, employees_needed: list) -> tuple:
+def run(shifts: list, shifts_cost: list, employees: tuple) -> tuple:
+    """Run the algorithm"""
+    max_employees, employees_needed = employees
     best_cost = None
     best_solution = None
     for x0 in range(max_employees):
@@ -22,6 +25,6 @@ def run(shifts: list, shifts_cost: list, employees_needed: list) -> tuple:
 
 if __name__ == '__main__':
     shifts, shifts_cost = get_shifts_with_cost()
-    cost, solution = run(shifts, shifts_cost, employees_needed)
+    cost, solution = run(shifts, shifts_cost, get_employee_constraints())
     print('cost:', cost)
     print('solution:', solution)

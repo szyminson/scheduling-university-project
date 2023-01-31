@@ -19,7 +19,7 @@ def load_results()->dict:
     with open(directory.joinpath(filename), 'rb') as handle:
         return pickle.load(handle)
 
-def draw_plot(results: dict):
+def draw_plot(results: dict, algorithms: list = [], prefix: str = ''):
     times_fig, times_ax = plt.subplots()
     times_ax.set_ylabel('Times [s]')
     times_ax.set_xlabel('Sizes')
@@ -27,6 +27,8 @@ def draw_plot(results: dict):
     costs_ax.set_ylabel('Costs [pln]')
     costs_ax.set_xlabel('Sizes')
     for algorithm in results:
+        if algorithms and algorithm not in algorithms:
+            continue
         sizes = list(results[algorithm].keys())
         times = []
         costs = []
@@ -38,8 +40,8 @@ def draw_plot(results: dict):
         costs_ax.plot(sizes, costs, 'o--', label=algorithm)
     times_ax.legend()
     costs_ax.legend()
-    times_fig.savefig(directory.joinpath('times_plot'))
-    costs_fig.savefig(directory.joinpath('costs_plot'))
+    times_fig.savefig(directory.joinpath(prefix + 'times_plot'))
+    costs_fig.savefig(directory.joinpath(prefix + 'costs_plot'))
 
 def process_results(results: dict):
     draw_plot(results)
@@ -47,4 +49,6 @@ def process_results(results: dict):
 if __name__ == '__main__':
     results = load_results()
     draw_plot(results)
+    draw_plot(results, ['genetic', 'aco'], 'ga_')
+
     print(json.dumps(results, sort_keys=True, indent=4))

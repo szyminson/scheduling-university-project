@@ -70,7 +70,10 @@ def run(shifts: list, shifts_cost: list, employees: tuple) -> tuple:
 
 
 if __name__ == '__main__':
-    shifts, shifts_cost = get_shifts_with_cost()
-    cost, solution = run(shifts, shifts_cost, get_employee_constraints())
-    print('cost:', cost)
-    print('solution:', solution)
+    try:
+        shifts, shifts_cost = get_shifts_with_cost()
+        cost, solution = run(shifts, shifts_cost, get_employee_constraints(1))
+        print('cost:', cost)
+        print('solution:', solution)
+    except KeyboardInterrupt:
+        exit

@@ -1,6 +1,8 @@
 """Results processing utilities"""
 import pickle
 from pathlib import Path
+import json
+from matplotlib import pyplot as plt
 
 filename='results.pickle'
 directory='results'
@@ -17,5 +19,32 @@ def load_results()->dict:
     with open(directory.joinpath(filename), 'rb') as handle:
         return pickle.load(handle)
 
+def draw_plot(results: dict):
+    times_fig, times_ax = plt.subplots()
+    times_ax.set_ylabel('Times [s]')
+    times_ax.set_xlabel('Sizes')
+    costs_fig, costs_ax = plt.subplots()
+    costs_ax.set_ylabel('Costs [pln]')
+    costs_ax.set_xlabel('Sizes')
+    for algorithm in results:
+        sizes = list(results[algorithm].keys())
+        times = []
+        costs = []
+        for size in results[algorithm]:
+            time, cost = results[algorithm][size]
+            times.append(time)
+            costs.append(cost)
+        times_ax.plot(sizes, times, 'o--', label=algorithm)
+        costs_ax.plot(sizes, costs, 'o--', label=algorithm)
+    times_ax.legend()
+    costs_ax.legend()
+    times_fig.savefig(directory.joinpath('times_plot'))
+    costs_fig.savefig(directory.joinpath('costs_plot'))
+
+def process_results(results: dict):
+    draw_plot(results)
+
 if __name__ == '__main__':
-    print(load_results())
+    results = load_results()
+    draw_plot(results)
+    print(json.dumps(results, sort_keys=True, indent=4))

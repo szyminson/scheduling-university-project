@@ -1,18 +1,22 @@
 """Experiment utilities"""
 from time import time
+from collections.abc import Callable
 from func_timeout import func_timeout, FunctionTimedOut
+from alive_progress import alive_bar
 import bruteforce
 import aco
+import genetic
 from common import get_shifts_with_cost, get_employee_constraints
-from result_processing import save_results
+from result_processing import save_results, process_results
 
-repeats = 10
-timeout_sec = 10
-problem_sizes = [1, 4]
+repeats = 5
+timeout_sec = 3600
+problem_sizes = [1, 4, 6, 8, 12, 14, 18, 24, 30, 42, 56, 70, 100]
 
 algorithms = {
     'aco': aco,
-    'bruteforce': bruteforce
+    'bruteforce': bruteforce,
+    'genetic': genetic,
 }
 
 
@@ -21,7 +25,7 @@ def calc_avg(times: list, costs: list) -> tuple:
     return (sum(times)/len(times)), (sum(costs)/len(costs))
 
 
-def run_algorithm(algorithm: callable, params: tuple) -> tuple:
+def run_algorithm(algorithm: Callable[[list, list, tuple], tuple], params: tuple) -> tuple:
     """Run given algorithm callable with timeout restriction"""
     timeout_sec, repeats, sizes = params
     shifts, shifts_cost = get_shifts_with_cost()
@@ -30,29 +34,36 @@ def run_algorithm(algorithm: callable, params: tuple) -> tuple:
         args = shifts, shifts_cost, get_employee_constraints(size)
         times = []
         costs = []
-        for _ in range(repeats):
-            start_time = time()
-            try:
-                cost, _ = func_timeout(timeout_sec, algorithm, args)
-                times.append(time() - start_time)
-                costs.append(cost)
-            except FunctionTimedOut:
-                results[size] = float('inf'), float('inf')
-                return results
+        with alive_bar(repeats) as bar:
+            bar.title('Instance size: ' + str(size).rjust(3))
+            for _ in range(repeats):
+                start_time = time()
+                try:
+                    cost, _ = func_timeout(timeout_sec, algorithm, args)
+                    times.append(time() - start_time)
+                    costs.append(cost)
+                    bar()
+                except FunctionTimedOut:
+                    results[size] = float('inf'), float('inf')
+                    return results
         results[size] = calc_avg(times, costs)
     return results
 
+
 def run(algorithms: dict, timeout_sec: int, repeats: int, sizes: list):
     """Run experiment"""
-    
     results = {}
     for algorithm in algorithms:
+        print('\nRunning: ' + algorithm)
         results[algorithm] = run_algorithm(algorithms[algorithm].run,
-                                                    (timeout_sec, repeats, sizes))
+                                           (timeout_sec, repeats, sizes))
     return results
 
 
 if __name__ == '__main__':
-    results = run(algorithms, timeout_sec, repeats, problem_sizes)
-    save_results(results)
-    print(results)
+    try:
+        results = run(algorithms, timeout_sec, repeats, problem_sizes)
+        save_results(results)
+        process_results(results)
+    except KeyboardInterrupt:
+        exit

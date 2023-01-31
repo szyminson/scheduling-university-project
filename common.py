@@ -1,4 +1,5 @@
 """Common utilities and problem definition"""
+from math import ceil
 normal_day_cost = 150
 unusual_day_costs = {
     5: 250,
@@ -7,10 +8,12 @@ unusual_day_costs = {
 employees_per_route = [3, 3, 3, 3, 3, 2, 2]
 
 
-def get_employee_constraints(route_number: int)-> tuple:
+def get_employee_constraints(route_number: int) -> tuple:
     """Get tuple with constraint partials"""
-    employees_needed = [number * route_number for number in employees_per_route]
-    return max(employees_needed), employees_needed
+    employees_needed = [
+        number * route_number for number in employees_per_route]
+    return ceil(max(employees_needed)/2), employees_needed
+
 
 def create_shifts() -> list:
     """Create available shifts list"""

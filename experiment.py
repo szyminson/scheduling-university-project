@@ -10,8 +10,8 @@ from common import get_shifts_with_cost, get_employee_constraints
 from result_processing import save_results, process_results
 
 repeats = 5
-timeout_sec = 3600
-problem_sizes = [1, 4, 6, 8, 12, 14, 18, 24, 30, 42, 56, 70, 100]
+timeout_sec = 10
+problem_sizes = [1, 4, 6, 8, 12]
 
 algorithms = {
     'aco': aco,
